@@ -1,0 +1,64 @@
+---
+title: "Tidy_TuesdaySept21"
+author: "Ben Wagner"
+date: "9/21/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidytuesdayR)
+library(tidyverse)
+library(ggplot2)
+tuesdata <- tidytuesdayR::tt_load('2021-09-14')
+billboard <- tuesdata$billboard
+audio_features <- tuesdata$audio_features
+billboard_data <- billboard %>% 
+  mutate(week_date = as.Date(week_id, format="%m/%d/%Y")) %>% 
+  left_join(audio_features, by="song_id", "song")
+```
+
+
+
+```{r vis}
+
+#theme
+My_theme <- theme(
+  #titles
+  plot.title=element_text(hjust=0.5, size=14, color="#58175e"),
+  plot.title.position = "plot",
+  plot.caption=element_text(size=8, color="#58175e", hjust=0.5),
+  plot.caption.position = "plot",
+  #background
+  panel.border=element_blank(),
+  panel.background = element_rect(fill = "#c091c4"),
+  plot.background = element_rect(fill = "#b882bd"),
+  plot.margin=ggplot2::margin(0.5, 0.5, 0.5, 0.5, "in"),
+  #axes
+  axis.ticks.length=unit(0.15, "cm"),
+  axis.ticks = element_blank(),
+  axis.line = element_blank(),
+  axis.text = element_text(size=6, color="white"),
+  #no legend
+  legend.position = "none")
+
+
+billboard_data %>%  
+  filter(week_position == 1) %>% 
+  group_by(song.x) %>%
+  mutate(instance_at_1= instance/instance) %>% 
+  mutate(weeks_at_1 = sum(instance_at_1)) %>%   
+  #filter(weeks_at_1>10) %>%
+ggplot(aes(x = weeks_at_1, y=danceability))+
+  geom_point(na.rm= TRUE)+
+  geom_smooth(method='lm', colour= "white")+
+  labs(title = "Do #1 Billboard hits stay at the top if people can dance to them?",
+       x="Weeks at #1",
+       y="Danceability",
+       caption="Ben Wagner | Data: Data.World / Billboard.com / Spotify.")+
+  My_theme
+  
+  
+```
+
+I chose to look at the relationship between the number of weeks songs stayed at #1 on the Billboard and the level of danceability they had to them. People love to dance to music, thus they will listen to the songs with more danceability more than those that don't. As an effect those songs will be played more and more, but I was curious as to how much that played a role in the success of the song. I chose a scatter plot because there was a lot of songs that peaked at number one and I could show the linear relationship using the geom_smooth() plot withing the scatter. I chose the purple color scheme because it was aethsetically pleasing.

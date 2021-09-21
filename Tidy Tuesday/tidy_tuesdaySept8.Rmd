@@ -1,0 +1,56 @@
+---
+title: "Tidy_Tuesday_01"
+author: "Ben Wagner"
+date: "9/7/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+circuits <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-09-07/circuits.csv')
+constructor_results <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-09-07/constructor_results.csv')
+constructor_standings <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-09-07/constructor_standings.csv')
+constructors <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-09-07/constructors.csv')
+driver_standings <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-09-07/driver_standings.csv')
+drivers <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-09-07/drivers.csv')
+lap_times <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-09-07/lap_times.csv')
+pit_stops <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-09-07/pit_stops.csv')
+qualifying <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-09-07/qualifying.csv')
+races <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-09-07/races.csv')
+results <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-09-07/results.csv')
+seasons <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-09-07/seasons.csv')
+status <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-09-07/status.csv')
+library(tidyverse)
+```
+
+## R Markdown
+
+##The question my graph plans to show is which drivers have been the most dominant over the last 5 or so years? What trends do they show as time goes on?
+
+```{r}
+driver_results_df <- driver_standings %>% 
+  left_join(races, by = "raceId") %>% 
+  rename(driver_url = url) %>% 
+  left_join(drivers, by = "driverId")
+```
+
+```{r}
+driver_results_df %>% 
+  group_by(driverId, year) %>% 
+  filter(year >= 2017) %>%
+  mutate(max_points= max(points)) %>% 
+  filter(max_points>20) %>% 
+ggplot() +
+  geom_path(aes(x = year, y= max_points))+
+  labs(title = "Points Per Year for each Driver from 2017-2021",
+       y= "Points")+
+  facet_wrap(~code)+
+  scale_x_continuous(breaks = seq(2017, 2021, 2))+
+  theme_grey()+
+  theme(plot.title = element_text(color= "black", size = 13, face= "bold", hjust = 0.5),
+        plot.background = element_rect(fill = "lightblue"))
+```
+
+##The graph made traces the maximum number of points each driver earned for each year. I created this variable (max_points). This shows which drivers are finding success in their races. I facetted this graph in order to more easily show each driver's trend over the 4-5 years. I thought about seperating by color, but there are too many drivers and it would have made it hard to tell which driver's trend was which.
+
+
