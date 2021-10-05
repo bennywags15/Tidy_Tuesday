@@ -1,0 +1,70 @@
+---
+title: "Tidy_TuesdayOct5"
+author: "Ben Wagner"
+date: "10/5/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#knitr::opts_chunk$set(echo = TRUE)
+library(tidytuesdayR)
+library(tidyverse)
+library(ggplot2)
+library(rvest)
+library(gganimate)
+tuesdata <- tidytuesdayR::tt_load('2021-09-21')
+nominees <- tuesdata$nominees
+```
+
+```{r theme}
+
+#theme
+My_theme <- theme(
+  #titles
+  plot.title=element_text(hjust=0.5, size=14, color="#bd9702"),
+  plot.title.position = "plot",
+  plot.caption=element_text(size=8, color="#bd9702", hjust=0.5),
+  plot.caption.position = "plot",
+  plot.subtitle = element_text(color = "#bd9702"),
+
+  #background
+  panel.border=element_blank(),
+  panel.background = element_rect(fill = "#000000"),
+  plot.background = element_rect(fill = "#000000"),
+  plot.margin=ggplot2::margin(0.5, 0.5, 0.5, 0.5, "in"),
+  #axes
+  axis.ticks.length=unit(0.15, "cm"),
+  axis.ticks = element_blank(),
+  axis.line = element_blank(),
+  axis.text = element_text(size=6, color="white"),
+  #no legend
+  legend.position = "none")
+```
+
+
+```{r anim}
+nominees_anim <- nominees %>% 
+  filter(year >= 2000) %>%
+  filter(year != 2014) %>% 
+  group_by(distributor, year) %>% 
+  count(distributor) %>% 
+  group_by(year) %>% 
+  slice_max(n, n=10)  %>% 
+  ggplot(aes(x = n , y = reorder(distributor, n))) +
+  geom_col(fill= "#bd9702")+
+  labs(title= "Number of Emmys",
+       subtitle = "Year: {frame_time}",
+       x="",
+       y="Distributor",
+       caption="Ben Wagner | Data: Emmys / Emmys.com ")+
+  transition_time(as.integer(year))+
+  My_theme
+
+animate(nominees_anim, duration = 20)
+```
+```{r anim_save}
+anim_save("Emmys_anim.gif")
+```
+
+
+rue
